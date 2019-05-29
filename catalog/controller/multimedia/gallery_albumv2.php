@@ -1,10 +1,10 @@
 <?php
-class ControllerMultimediaGalleryAlbum extends Controller {
+class ControllerMultimediaGalleryAlbumv2 extends Controller {
 	private $breadcrumbs_builded = array();
 	
 	public function index() {
-		$this->load->language('multimedia/gallery_album');
-		$this->load->model('multimedia/gallery_album');
+		$this->load->language('multimedia/gallery_albumv2');
+		$this->load->model('multimedia/gallery_albumv2');
 		$this->load->model('tool/image');
 		$this->document->addStyle('catalog/view/theme/default/stylesheet/albums.css');
         $this->document->addStyle('catalog/view/javascript/lightgallery/css/lightgallery.css');
@@ -29,13 +29,13 @@ class ControllerMultimediaGalleryAlbum extends Controller {
 			'text' => 'Albums',
 			'href' => $this->url->link('multimedia/gallery_album')
 		);
-		
-		$child_albums = $this->model_multimedia_gallery_album->getAlbums($album_id);
+
+		$child_albums = $this->model_multimedia_gallery_albumv2->getAlbums($album_id);
 		
 		if ($album_id) {
-			$album_info = $this->model_multimedia_gallery_album->getAlbum($album_id);
-			$images = $this->model_multimedia_gallery_album->getImages($album_id);
-			$parents = $this->model_multimedia_gallery_album->getParents($album_id);
+			$album_info = $this->model_multimedia_gallery_albumv2->getAlbum($album_id);
+            $catalogs = $this->model_multimedia_gallery_albumv2->scanCatalogs($album_id);
+			$parents = $this->model_multimedia_gallery_albumv2->getParents($album_id);
 			$this->breadcrumbBuilder($parents);
 			foreach ($this->breadcrumbs_builded as $breadcrumb) {
 				$data['breadcrumbs'][] = array(
@@ -44,7 +44,7 @@ class ControllerMultimediaGalleryAlbum extends Controller {
 				);
 			}
 		} else {
-			$images = 0;
+            $catalogs = 0;
 			$album_info = 0;
 		}
 		
@@ -62,7 +62,7 @@ class ControllerMultimediaGalleryAlbum extends Controller {
 				$data['child_albums'][] = array(
 					'name'			=> $album['name'],
 					'description'	=> utf8_substr(trim(strip_tags(html_entity_decode($album['description'], ENT_QUOTES, 'UTF-8'))), 0, $this->config->get('theme_' . $this->config->get('config_theme') . '_product_description_length')) . '..',
-					'href'			=> $this->url->link('multimedia/gallery_album', 'album_id=' . $album['album_id']),
+					'href'			=> $this->url->link('multimedia/gallery_albumv2', 'album_id=' . $album['album_id']),
 					'thumb'			=> $thumb,
 					'date_added'	=> $album['date_added']
 				);
@@ -93,18 +93,26 @@ class ControllerMultimediaGalleryAlbum extends Controller {
 				'popup'			=> $popup,
 				'thumb'			=> $thumb
 			);
-			
-			$data['images'] = array();
-			foreach ($images as $image) {
-			    $res_str = $this->model_tool_image->resize($image['image'], 375, 250) . ' 375' . $this->model_tool_image->resize($image['image'], 480, 320) . ' 480' . $this->model_tool_image->resize($image['image'], 800, 535) . ' 800';
-				$data['images'][] = array(
-					'thumb'         => $this->model_tool_image->resize($image['image'], $this->config->get('theme_' . $this->config->get('config_theme') . '_gallery_image_thumb_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_gallery_image_thumb_height')),
-					'popup'         => $this->model_tool_image->resize($image['image'], $this->config->get('theme_' . $this->config->get('config_theme') . '_gallery_image_popup_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_gallery_image_popup_height')),
-                    'original'      => $image['image'],
-                    'respons'       => $res_str,
-                    'label'         => $image['label'],
-                    'description'   => $image['description']
-				);
+
+            $data['catalogs'] = array();
+			foreach ($catalogs as $catalog) {
+			    $imgs = array();
+			    foreach ($catalog['images'] as $img) {
+			        $image = str_replace(DIR_IMAGE, '', $img);
+                    $res_str = $this->model_tool_image->resize($image, 375, 250) . ' 375' . $this->model_tool_image->resize($image, 480, 320) . ' 480' . $this->model_tool_image->resize($image, 800, 535) . ' 800';
+                    $imgs[] = array(
+                        'thumb'         => $this->model_tool_image->resize($image, $this->config->get('theme_' . $this->config->get('config_theme') . '_gallery_image_thumb_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_gallery_image_thumb_height')),
+                        'popup'         => $this->model_tool_image->resize($image, $this->config->get('theme_' . $this->config->get('config_theme') . '_gallery_image_popup_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_gallery_image_popup_height')),
+                        'original'      => $image,
+                        'respons'       => $res_str,
+                        'name'          => basename($image)
+                    );
+                }
+                $data['catalogs'][] = array(
+                    'title' => $catalog['title'],
+                    'description' => $catalog['description'],
+                    'images' => $imgs
+                );
 			}
 
 		} else {
@@ -120,7 +128,7 @@ class ControllerMultimediaGalleryAlbum extends Controller {
 		$data['footer'] = $this->load->controller('common/footer');
 		$data['header'] = $this->load->controller('common/header');
 		
-		$this->response->setOutput($this->load->view('multimedia/gallery_album', $data));
+		$this->response->setOutput($this->load->view('multimedia/gallery_albumv2', $data));
 	}
 	
 	private function breadcrumbBuilder($parent = array()) {
@@ -129,7 +137,7 @@ class ControllerMultimediaGalleryAlbum extends Controller {
 				if ($it['child']) { $this->breadcrumbBuilder($it['child']); }
 				$this->breadcrumbs_builded[] = array(
 					'name'	=> $it['name'],
-					'href'	=> $this->url->link('multimedia/gallery_album', 'album_id=' . $it['album_id'])
+					'href'	=> $this->url->link('multimedia/gallery_albumv2', 'album_id=' . $it['album_id'])
 				);
 			}
 		}

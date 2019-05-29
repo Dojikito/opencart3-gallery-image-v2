@@ -214,7 +214,7 @@
 									<tfoot>
 									<tr>
 										<td colspan="4"></td>
-										<td class="text-left"><button type="button" onclick="addCatalog();" data-toggle="tooltip" title="{{ button_catalog_add }}" class="btn btn-primary"><i class="fa fa-plus-circle"></i></button></td>
+										<td class="text-left"><button type="button" onclick="javascript:addCatalog();" data-toggle="tooltip" title="{{ button_catalog_add }}" class="btn btn-primary"><i class="fa fa-plus-circle"></i></button></td>
 									</tr>
 									</tfoot>
 								</table>
@@ -355,6 +355,7 @@
         //--></script>
 	<script type="text/javascript"><!--
         var catalog_row = {{ catalog_row }};
+
         function addCatalog() {
             html  = '<tr id="catalog-row' + catalog_row + '">';
             html += '<td class="text-left"><input class="form-control" placeholder="{{ entry_album_catalog }}" data-toggle="catalog" type="text" name="album_catalogs[' + catalog_row + '][catalog]" value="" id="input-catalog' + catalog_row + '" /></td>';
@@ -366,17 +367,16 @@
 
             html += '<td class="text-left">';
             {% for language in languages %}
-            html += '<div class="input-group"><span class="input-group-addon"><img src="language/{{ language.code }}/{{ language.code }}.png" title="{{ language.name }}" /></span><textarea type="text" name="album_catalogs[' + catalog_row + '][description][{{ language.language_id }}][description]" value="{{ album_catalogs[language.language_id] ? album_catalogs[language.language_id].description }}" placeholder="{{ entry_description }}" class="form-control" /></textarea></div>';
+            html += '<div class="input-group"><span class="input-group-addon"><img src="language/{{ language.code }}/{{ language.code }}.png" title="{{ language.name }}" /></span><textarea type="text" name="album_catalogs[' + catalog_row + '][description][{{ language.language_id }}][description]" value="{{ album_catalogs[language.language_id] ? album_catalogs[catalog_row][description][language.language_id].description }}" placeholder="{{ entry_description }}" class="form-control" /></textarea>';
+			html +='</div>';
             {% endfor %}
             html += '</td>';
-            html += '  <td class="text-right"><input type="text" name="album_catalogs[' + catalog_row + '][sort_order]" value="" placeholder="{{ entry_sort_order }}" class="form-control" /></td>';
-            html += '  <td class="text-left"><button type="button" onclick="$(\'#catalog-row' + catalog_row  + '\').remove();" data-toggle="tooltip" title="{{ button_remove }}" class="btn btn-danger"><i class="fa fa-minus-circle"></i></button></td>';
+            html += '<td class="text-right"><input type="text" name="album_catalogs[' + catalog_row + '][sort_order]" value="" placeholder="{{ entry_sort_order }}" class="form-control" /></td>';
+            html += '<td class="text-left"><button type="button" onclick="$(\'#catalog-row' + catalog_row  + '\').remove();" data-toggle="tooltip" title="{{ button_remove }}" class="btn btn-danger"><i class="fa fa-minus-circle"></i></button></td>';
             html += '</tr>';
-
             $('#images tbody').append(html);
-
             catalog_row++;
-        }
+        };
         //--></script>
 	<script type="text/javascript"><!--
         $('#language a:first').tab('show');
