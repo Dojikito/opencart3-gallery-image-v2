@@ -75,7 +75,7 @@ class ControllerMultimediaGalleryAlbumv2 extends Controller {
 			$this->document->setKeywords($album_info['meta_keyword']);
 			
 			if ($album_info['image']) {
-				$popup = $this->model_tool_image->resize($album_info['image'], $this->config->get('theme_' . $this->config->get('config_theme') . '_gallery_album_image_popup_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_gallery_album_image_popup_height'));
+				$popup = $this->model_tool_image->resize($album_info['image'], $this->config->get('theme_' . $this->config->get('config_theme') . '_image_popup_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_image_popup_height'));
 			} else {
 				$popup = '';
 			}
@@ -101,8 +101,8 @@ class ControllerMultimediaGalleryAlbumv2 extends Controller {
 			        $image = str_replace(DIR_IMAGE, '', $img);
                     $res_str = $this->model_tool_image->resize($image, 375, 250) . ' 375' . $this->model_tool_image->resize($image, 480, 320) . ' 480' . $this->model_tool_image->resize($image, 800, 535) . ' 800';
                     $imgs[] = array(
-                        'thumb'         => $this->model_tool_image->resize($image, $this->config->get('theme_' . $this->config->get('config_theme') . '_gallery_image_thumb_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_gallery_image_thumb_height')),
-                        'popup'         => $this->model_tool_image->resize($image, $this->config->get('theme_' . $this->config->get('config_theme') . '_gallery_image_popup_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_gallery_image_popup_height')),
+                        'thumb'         => $this->model_tool_image->resize($image, $this->config->get('theme_' . $this->config->get('config_theme') . '_image_thumb_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_image_thumb_height')),
+                        'popup'         => $this->model_tool_image->resize($image, $this->config->get('theme_' . $this->config->get('config_theme') . '_image_popup_width'), $this->config->get('theme_' . $this->config->get('config_theme') . '_image_popup_height')),
                         'original'      => $image,
                         'respons'       => $res_str,
                         'name'          => basename($image)
